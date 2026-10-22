@@ -33,7 +33,7 @@ body.touch #help{display:none}body.touch #hp{bottom:auto;top:62px;width:200px}bo
 .pick{opacity:.55}.pick.sel2{opacity:1;outline:4px solid #fff}.btn.gpf,#code.gpf{outline:5px solid #39f;outline-offset:3px}
 #toast{position:fixed;top:40%;left:50%;transform:translateX(-50%);background:#000c;color:#ffb347;padding:14px 24px;font-weight:900;border:2px solid #ff8a2a;border-radius:8px;z-index:20;display:none;font-size:22px}</style></head><body>
 <div id="title" class="ov"><canvas id="logo" width="1000" height="300"></canvas>
-<div class="sub">LEVEL 1 · EMBER ISLE</div><div style="display:flex;gap:16px;margin-top:18px"><button class="btn pick sel2" data-c="bradley" style="background:linear-gradient(#444,#111);color:#ffb347;padding:12px 26px">BRADLEY</button><button class="btn pick" data-c="enzo" style="background:linear-gradient(#3a8ef0,#1b5fb0);color:#fff;padding:12px 26px">ENZO</button></div>
+<div class="sub">LEVEL 1 · EMBER ISLE</div><div id="whatsnew" class="sub" style="font-size:18px;color:#9fd8ff">NEW: IRON SWORD! 3 hits beats a husk</div><div style="display:flex;gap:16px;margin-top:18px"><button class="btn pick sel2" data-c="bradley" style="background:linear-gradient(#444,#111);color:#ffb347;padding:12px 26px">BRADLEY</button><button class="btn pick" data-c="enzo" style="background:linear-gradient(#3a8ef0,#1b5fb0);color:#fff;padding:12px 26px">ENZO</button></div>
 <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center"><button class="btn" id="play">SOLO</button><button class="btn" id="host">HOST GAME</button><button class="btn" id="build" style="background:linear-gradient(#7fe07f,#2f9a3f)">BUILD MODE</button></div>
 <div style="display:flex;gap:10px;margin-top:16px;align-items:center"><input id="code" maxlength="5" autocapitalize="characters" autocomplete="off" placeholder="CODE" style="width:200px;font-size:40px;text-align:center;letter-spacing:6px;padding:8px;border:4px solid #ff8a2a;background:#111;color:#ffb347;font-weight:900;text-transform:uppercase"><button class="btn" id="join" style="margin-top:0">JOIN</button></div>
 <div style="display:flex;gap:10px;margin-top:10px"><button class="btn" id="exp" style="font-size:14px;padding:8px 16px;margin-top:0">EXPORT WORLD</button><button class="btn" id="imp" style="font-size:14px;padding:8px 16px;margin-top:0">IMPORT WORLD</button><input type="file" id="impf" accept=".json,application/json" style="display:none"></div><div id="net" class="sub" style="font-size:22px;min-height:30px"></div>
@@ -50,7 +50,7 @@ body.touch #help{display:none}body.touch #hp{bottom:auto;top:62px;width:200px}bo
 <div id="msg"></div><canvas id="mm" width="150" height="150" style="position:absolute;right:14px;top:14px;border:2px solid #ff8a2a88;border-radius:50%;background:#0008"></canvas></div></div>
 <div id="touch"><div id="joy"><div id="knob"></div></div>
 <div class="tb" data-a="jump" style="right:3vw;bottom:4vh">JUMP</div>
-<div class="tb" data-a="mine" style="right:calc(3vw + min(15vh,100px));bottom:4vh">MINE</div>
+<div class="tb" data-a="mine" style="right:calc(3vw + min(15vh,100px));bottom:4vh">⚔ HIT</div>
 <div class="tb" data-a="place" style="right:3vw;bottom:calc(4vh + min(15vh,100px))">PLACE</div>
 <div class="tb" data-a="wall" style="right:calc(3vw + min(15vh,100px));bottom:calc(4vh + min(15vh,100px))">WALL</div>
 <div class="tb" data-a="ramp" style="right:calc(3vw + min(30vh,200px));bottom:4vh">RAMP</div>
@@ -161,7 +161,8 @@ const mkLimb=(x,y,mat,len,top)=>{const p=new THREE.Group();p.position.set(x,y,0)
 const la=mkLimb(-.36,1.18,L(skin),.6,1),ra=mkLimb(.36,1.18,L(skin),.6,1),ll=mkLimb(-.13,.6,L(pants),.6),rl=mkLimb(.13,.6,L(pants),.6);
 box(.24,.1,.3,L(0x222222),0,-.58,.03,ll);box(.24,.1,.3,L(0x222222),0,-.58,.03,rl);
 // pickaxe
-const pk=new THREE.Group();pk.position.set(0,-.55,.05);ra.add(pk);box(.06,.06,.7,L(0x7a5230),0,0,.25,pk);box(.5,.08,.08,L(0xff8a1a),0,0,.58,pk);
+// iron sword
+const pk=new THREE.Group();pk.position.set(0,-.55,.05);pk.rotation.x=-.3;ra.add(pk);const IRON=L(0xd8dde2),IRD=L(0x9aa3ab);box(.07,.07,.22,L(0x5a3a1c),0,0,0,pk);box(.36,.08,.08,IRD,0,0,.14,pk);box(.1,.05,.72,IRON,0,0,.54,pk);box(.05,.055,.72,IRD,.025,0,.54,pk);box(.06,.05,.08,IRON,0,0,.93,pk);
 // name tag
 const nc=document.createElement('canvas');nc.width=256;nc.height=64;const ng=nc.getContext('2d');ng.fillStyle='#0008';ng.fillRect(0,8,256,48);ng.fillStyle='#ffb347';ng.font='bold 36px Arial';ng.textAlign='center';ng.fillText(C.name,128,46);
 const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(nc),depthTest:false}));sp.scale.set(1.4,.35,1);sp.position.y=2.2;G.add(sp);
@@ -181,7 +182,7 @@ const crystalObjs=[];
 function makeCrystal(x,y,z){const g=new THREE.Group();const m=new THREE.Mesh(new THREE.OctahedronGeometry(.35),new THREE.MeshStandardMaterial({color:0xff9a2a,emissive:0xff5a00,emissiveIntensity:1.4,roughness:.3}));g.add(m);const l=new THREE.PointLight(0xff7a1a,1.5,6);g.add(l);g.position.set(x,y,z);scene.add(g);g.userData.id=crystalObjs.length+'_'+x;crystalObjs.push(g);}
 function makeHusk(x,z){const g=new THREE.Group();const b=new THREE.Mesh(new THREE.BoxGeometry(.9,.8,.9),L(0x7a5ac8));b.position.y=.4;b.castShadow=true;g.add(b);
 const ew=new THREE.MeshBasicMaterial({color:0xffffff}),ep=new THREE.MeshBasicMaterial({color:0x111111});[-.2,.22].forEach((dx,i)=>{const e=new THREE.Mesh(new THREE.BoxGeometry(.26,.26,.05),ew);e.position.set(dx,.6,.46);g.add(e);const p=new THREE.Mesh(new THREE.BoxGeometry(.11,.11,.06),ep);p.position.set(dx+(i?.05:-.04),.57+(i?.04:0),.48);g.add(p);});const tg=new THREE.Mesh(new THREE.BoxGeometry(.18,.06,.12),new THREE.MeshBasicMaterial({color:0xff6a8a}));tg.position.set(.05,.28,.48);g.add(tg);
-g.position.set(x,groundY(x,z),z);g.userData={id:huskId++,hp:2,dir:Math.random()*6.28,t:0,body:b,cool:0};scene.add(g);return g;}
+g.position.set(x,groundY(x,z),z);g.userData={id:huskId++,hp:3,dir:Math.random()*6.28,t:0,body:b,cool:0};scene.add(g);return g;}
 let chests=[],PICK=1;
 function makeChests(){chests.forEach(c=>scene.remove(c));chests=[];[[-3.5,6.5],[7.5,8.5]].forEach(([x,z],i)=>{const g=new THREE.Group();const b=new THREE.Mesh(new THREE.BoxGeometry(.9,.6,.6),new THREE.MeshStandardMaterial({color:0xd8a020,emissive:0x664400,metalness:.4}));b.position.y=.3;g.add(b);
 const lid=new THREE.Mesh(new THREE.BoxGeometry(.95,.2,.65),new THREE.MeshStandardMaterial({color:0xffd23a,emissive:0x885500}));lid.position.y=.7;g.add(lid);const l=new THREE.PointLight(0xffd040,1.6,5);l.position.y=1;g.add(l);
@@ -227,10 +228,12 @@ addEventListener('mouseup',e=>{if(e.button==0)mineHeld=false;});addEventListener
 addEventListener('contextmenu',e=>e.preventDefault());
 const ray=new THREE.Raycaster();
 function target(){if(FP&&introT<=0&&P.mode=='walk'&&!window.__dbgFace){ray.setFromCamera({x:0,y:0},cam);ray.far=6;}else{const o=new THREE.Vector3(P.pos.x,P.pos.y+1.5,P.pos.z);const d=new THREE.Vector3(P.pos.x,P.pos.y+1.3,P.pos.z).sub(cam.position).normalize();ray.set(o,d);ray.far=6;}const h=ray.intersectObjects(meshes)[0];if(h&&h.point.distanceTo(P.pos)<6)return h;return null;}
+function swordHit(h,fx,fz){h.userData.hp--;const b=h.userData.body,m0=b.material;b.material=L(0xffffff);setTimeout(()=>{b.material=m0},110);h.position.x+=fx*1.6;h.position.z+=fz*1.6;h.position.y+=.35;h.userData.cool=Math.max(h.userData.cool,.8);beep(1400,.05,'square',.05);beep(220,.1,'sawtooth',.07);}
+function huskPoof(h){const p=h.position;for(let i=0;i<8;i++){const m=new THREE.Mesh(new THREE.BoxGeometry(.18,.18,.18),L(0x7a5ac8));m.position.set(p.x,p.y+.5,p.z);scene.add(m);parts.push({m,v:new THREE.Vector3((Math.random()-.5)*5,3+Math.random()*3,(Math.random()-.5)*5),life:.7});}scene.remove(h);husks.splice(husks.indexOf(h),1);beep(660,.08,'triangle',.07);setTimeout(()=>beep(990,.1,'triangle',.07),70);}
 function mine(instant){swing=1;// husk bonk first
 const fwd=new THREE.Vector3(-Math.sin(P.yaw),0,-Math.cos(P.yaw));
-for(const h of husks){const d=h.position.clone().sub(P.pos);d.y=0;if(d.length()<2.4&&d.normalize().dot(fwd)>.3){if(NET&&!HOST){netSend({t:'hit',id:h.userData.id,fx:fwd.x,fz:fwd.z});beep(180,.12,'sawtooth');return;}h.userData.hp--;h.userData.body.material=L(0xff6a2a);setTimeout(()=>h.userData.body&&(h.userData.body.material=L(0x7a5ac8)),120);h.position.add(fwd.clone().multiplyScalar(1.2));beep(180,.12,'sawtooth');
-if(h.userData.hp<=0){scene.remove(h);husks.splice(husks.indexOf(h),1);msg('HUSK BONKED! boing');STATS.bonk++;mats.wood+=5;drawMats();}return;}}
+for(const h of husks){const d=h.position.clone().sub(P.pos);d.y=0;if(d.length()<2.4&&d.normalize().dot(fwd)>.3){if(NET&&!HOST){netSend({t:'hit',id:h.userData.id,fx:fwd.x,fz:fwd.z});beep(180,.12,'sawtooth');return;}swordHit(h,fwd.x,fwd.z);
+if(h.userData.hp<=0){huskPoof(h);msg('HUSK DEFEATED! iron sword ftw');STATS.bonk++;mats.wood+=5;drawMats();}return;}}
 if(!instant)return;const t=target();if(!t)return;const u=t.object.userData;if(u.y<=-1){msg('Bedrock-ish. Too deep!');return;}delB(u.x,u.y,u.z);burst(u.x,u.y,u.z,u.t);beep(300,.06);beep(160,.05,'triangle');
 const gain={grass:'dirt',ash:'stone'}[u.t]||u.t;const amt=u.t=='log'?3:1;mats[gain]=(mats[gain]||0)+amt;if(u.t=='log')mats.wood+=2;if(u.t=='log'||u.t=='leaf'||u.t=='wood')STATS.wood++;drawMats();popNum('+'+amt+' '+gain.toUpperCase());}
 function canPut(x,y,z){const px=Math.floor(P.pos.x),pz=Math.floor(P.pos.z),py=Math.floor(P.pos.y);return !(x==px&&z==pz&&(y==py||y==py+1));}
@@ -352,7 +355,7 @@ if(m.t=='c'){const c=crystalObjs.find(o=>o.userData.id==m.id);if(c){c.children[0
 if(m.t=='win'&&playing)finish(true);
 if(m.t=='obj'){if(m.i>objI){objI=m.i;}}
 if(m.t=='chest'){const c=chests.find(o=>o.userData.id==m.id);if(c)openChest(c,true);}
-if(m.t=='hit'&&HOST){const h=husks.find(o=>o.userData.id==m.id);if(h){h.userData.hp--;h.position.x+=m.fx*1.2;h.position.z+=m.fz*1.2;beep(180,.12,'sawtooth');if(h.userData.hp<=0){scene.remove(h);husks.splice(husks.indexOf(h),1);}}}
+if(m.t=='hit'&&HOST){const h=husks.find(o=>o.userData.id==m.id);if(h){swordHit(h,m.fx,m.fz);if(h.userData.hp<=0)huskPoof(h);}}
 if(m.t=='hk'&&!HOST){t0=performance.now()-m.el*1000;const ids=new Set(m.h.map(a=>a[0]));for(const h of [...husks])if(!ids.has(h.userData.id)){scene.remove(h);husks.splice(husks.indexOf(h),1);}
 m.h.forEach(a=>{const h=husks.find(o=>o.userData.id==a[0]);if(h){h.userData.tp=new THREE.Vector3(a[1],a[2],a[3]);h.userData.dir=a[4];}});}}
 function netTick(dt,T){if(!NET)return;sendAcc+=dt;if(sendAcc>=1/16){sendAcc=0;netSend({t:'p',ch:myChar,x:P.pos.x,y:P.pos.y,z:P.pos.z,yaw:P.yaw,sw:swing,mv:keys.KeyW||keys.KeyS||keys.KeyA||keys.KeyD||Math.abs(joyV.x)+Math.abs(joyV.y)>.2?1:0});

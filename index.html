@@ -33,7 +33,7 @@ body.touch #help{display:none}body.touch #hp{bottom:auto;top:62px;width:200px}bo
 .pick{opacity:.55}.pick.sel2{opacity:1;outline:4px solid #fff}.btn.gpf,#code.gpf{outline:5px solid #39f;outline-offset:3px}
 #toast{position:fixed;top:40%;left:50%;transform:translateX(-50%);background:#000c;color:#ffb347;padding:14px 24px;font-weight:900;border:2px solid #ff8a2a;border-radius:8px;z-index:20;display:none;font-size:22px}</style></head><body>
 <div id="title" class="ov"><canvas id="logo" width="1000" height="300"></canvas>
-<div class="sub">LEVEL 1 · EMBER ISLE</div><div id="whatsnew" class="sub" style="font-size:18px;color:#9fd8ff">NEW: BIGGER MAP with a glass wall · dig 6 blocks deep (find gold!) · no storm</div><div style="display:flex;gap:16px;margin-top:18px"><button class="btn pick sel2" data-c="bradley" style="background:linear-gradient(#444,#111);color:#ffb347;padding:12px 26px">BRADLEY</button><button class="btn pick" data-c="enzo" style="background:linear-gradient(#3a8ef0,#1b5fb0);color:#fff;padding:12px 26px">ENZO</button></div>
+<div class="sub">LEVEL 1 · EMBER ISLE</div><div id="whatsnew" class="sub" style="font-size:18px;color:#9fd8ff">NEW: SOCCER! kick the ball into the goal (run = big kick) · bigger map · dig 6 deep</div><div style="display:flex;gap:16px;margin-top:18px"><button class="btn pick sel2" data-c="bradley" style="background:linear-gradient(#444,#111);color:#ffb347;padding:12px 26px">BRADLEY</button><button class="btn pick" data-c="enzo" style="background:linear-gradient(#3a8ef0,#1b5fb0);color:#fff;padding:12px 26px">ENZO</button></div>
 <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center"><button class="btn" id="play">SOLO</button><button class="btn" id="host">HOST GAME</button><button class="btn" id="build" style="background:linear-gradient(#7fe07f,#2f9a3f)">BUILD MODE</button></div>
 <div style="display:flex;gap:10px;margin-top:16px;align-items:center"><input id="code" maxlength="5" autocapitalize="characters" autocomplete="off" placeholder="CODE" style="width:200px;font-size:40px;text-align:center;letter-spacing:6px;padding:8px;border:4px solid #ff8a2a;background:#111;color:#ffb347;font-weight:900;text-transform:uppercase"><button class="btn" id="join" style="margin-top:0">JOIN</button></div>
 <div style="display:flex;gap:10px;margin-top:10px"><button class="btn" id="exp" style="font-size:14px;padding:8px 16px;margin-top:0">EXPORT WORLD</button><button class="btn" id="imp" style="font-size:14px;padding:8px 16px;margin-top:0">IMPORT WORLD</button><input type="file" id="impf" accept=".json,application/json" style="display:none"></div><div id="net" class="sub" style="font-size:22px;min-height:30px"></div>
@@ -47,7 +47,7 @@ body.touch #help{display:none}body.touch #hp{bottom:auto;top:62px;width:200px}bo
 <div id="hp" class="panel">HEALTH <span id="hpn">100</span><div id="hpbar"><div id="hpfill"></div></div></div>
 <div id="mats"></div>
 <div id="help" class="panel">WASD move · Space jump<br>L-Click mine / bonk husks<br>R-Click place block<br>Q wall · F ramp<br>M music · G dance · Hold L-click break · wheel/1-9 hotbar<br>E inventory · Shift sneak · Ctrl sprint<br>F5 camera · V talk · Esc release mouse</div>
-<div id="msg"></div><canvas id="mm" width="150" height="150" style="position:absolute;right:14px;top:14px;border:2px solid #ff8a2a88;border-radius:50%;background:#0008"></canvas></div></div>
+<div id="msg"></div><div id="score" class="panel" style="left:50%;top:58px;transform:translateX(-50%);font-size:16px;font-weight:900"></div><canvas id="mm" width="150" height="150" style="position:absolute;right:14px;top:14px;border:2px solid #ff8a2a88;border-radius:50%;background:#0008"></canvas></div></div>
 <div id="touch"><div id="joy"><div id="knob"></div></div>
 <div class="tb" data-a="jump" style="right:3vw;bottom:4vh">JUMP</div>
 <div class="tb" data-a="mine" style="right:calc(3vw + min(15vh,100px));bottom:4vh">⚔ HIT</div>
@@ -215,7 +215,7 @@ scene.add(bus);bus.visible=false;let busT=0;
 const glider=new THREE.Mesh(new THREE.BoxGeometry(2.2,.08,1),new THREE.MeshLambertMaterial({color:0xff8a1a}));glider.position.y=2.3;glider.visible=false;
 const stormMesh=new THREE.Mesh(new THREE.CylinderGeometry(1,1,60,64,1,true),new THREE.MeshBasicMaterial({color:0x9b30ff,transparent:true,opacity:.28,side:THREE.DoubleSide,depthWrite:false}));stormMesh.position.y=10;stormMesh.visible=false;scene.add(stormMesh);
 const STORM_T=(180*2);
-function reset(){DIGON=false;[...meshes].forEach(m=>scene.remove(m));meshes.length=0;world.clear();crystalObjs.forEach(c=>scene.remove(c));crystalObjs.length=0;(husks||[]).forEach(h=>scene.remove(h));
+function reset(){DIGON=false;if(typeof BALL!='undefined'){BALL.sa=BALL.sb=0;ballReset();scoreMsg();}[...meshes].forEach(m=>scene.remove(m));meshes.length=0;world.clear();crystalObjs.forEach(c=>scene.remove(c));crystalObjs.length=0;(husks||[]).forEach(h=>scene.remove(h));
 buildIsland();
 makeCrystal(2.5,groundY(2.5,3.5)+.6,3.5);makeCrystal(-12.5,groundY(-12.5,-1.5)+.6,-1.5);
 makeCrystal(10,5+.8,-5);makeCrystal(-9,6+.8,6);for(let x=-1;x<=3;x++)for(let z=-11;z<=-7;z++){setB(x,8,z,(x+z)%2?'gold':'grass');if(Math.abs(x-1)+Math.abs(z+9)<2)setB(x,7,z,'dirt');}makeCrystal(1.5,9.8,-8.5);makeChests();
@@ -239,7 +239,7 @@ const ray=new THREE.Raycaster();
 function target(){if(FP&&introT<=0&&P.mode=='walk'&&!window.__dbgFace){ray.setFromCamera({x:0,y:0},cam);ray.far=6;}else{const o=new THREE.Vector3(P.pos.x,P.pos.y+1.5,P.pos.z);const d=new THREE.Vector3(P.pos.x,P.pos.y+1.3,P.pos.z).sub(cam.position).normalize();ray.set(o,d);ray.far=6;}const h=ray.intersectObjects(meshes)[0];if(h&&h.point.distanceTo(P.pos)<6)return h;return null;}
 function swordHit(h,fx,fz){h.userData.hp--;const b=h.userData.body,m0=b.material;b.material=L(0xffffff);setTimeout(()=>{b.material=m0},110);h.position.x+=fx*1.6;h.position.z+=fz*1.6;h.position.y+=.35;h.userData.cool=Math.max(h.userData.cool,.8);beep(1400,.05,'square',.05);beep(220,.1,'sawtooth',.07);}
 function huskPoof(h){const p=h.position;for(let i=0;i<8;i++){const m=new THREE.Mesh(new THREE.BoxGeometry(.18,.18,.18),L(0x7a5ac8));m.position.set(p.x,p.y+.5,p.z);scene.add(m);parts.push({m,v:new THREE.Vector3((Math.random()-.5)*5,3+Math.random()*3,(Math.random()-.5)*5),life:.7});}scene.remove(h);husks.splice(husks.indexOf(h),1);beep(660,.08,'triangle',.07);setTimeout(()=>beep(990,.1,'triangle',.07),70);}
-function mine(instant){swing=1;// husk bonk first
+function mine(instant){swing=1;{const b=BALL.m.position,f=new THREE.Vector3(-Math.sin(P.yaw),0,-Math.cos(P.yaw)),d=new THREE.Vector3(b.x-P.pos.x,0,b.z-P.pos.z);if(d.length()<2.2&&Math.abs(b.y-P.pos.y)<2&&d.normalize().dot(f)>.4){kickBall(f.x*12,f.z*12,4);return;}}// husk bonk first
 const fwd=new THREE.Vector3(-Math.sin(P.yaw),0,-Math.cos(P.yaw));
 for(const h of husks){const d=h.position.clone().sub(P.pos);d.y=0;if(d.length()<2.4&&d.normalize().dot(fwd)>.3){if(NET&&!HOST){netSend({t:'hit',id:h.userData.id,fx:fwd.x,fz:fwd.z});beep(180,.12,'sawtooth');return;}swordHit(h,fwd.x,fwd.z);
 if(h.userData.hp<=0){huskPoof(h);msg('HUSK DEFEATED! iron sword ftw');STATS.bonk++;mats.wood+=5;drawMats();}return;}}
@@ -277,6 +277,29 @@ else if(axis=='x')p.x=amt>0?x-r-.001:x+1+r+.001;else p.z=amt>0?z-r-.001:z+1+r+.0
 // auto step-up 1 block
 if(axis!='y'&&P.onG&&y==Math.floor(p.y)&&!world.has(key(x,y+1,z))&&!world.has(key(x,y+2,z))){}
 return true;}return false;}
+// ---------- SOCCER ----------
+const BALL={m:null,v:new THREE.Vector3(),sa:0,sb:0,tp:null,goalT:0};{const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,64,64);g.fillStyle='#111';[[16,16],[48,16],[32,40],[8,52],[56,52]].forEach(([x,y])=>{g.beginPath();g.arc(x,y,7,0,7);g.fill();});const t=new THREE.CanvasTexture(c);
+BALL.m=new THREE.Mesh(new THREE.SphereGeometry(.38,16,12),new THREE.MeshLambertMaterial({map:t}));BALL.m.castShadow=true;scene.add(BALL.m);
+const GM=new THREE.MeshLambertMaterial({color:0xffffff}),NM=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.25,side:THREE.DoubleSide,depthWrite:false});
+[[-23.6,1,0x2a7de1],[-11.4,-1,0xff8a1a]].forEach(([gx,dir,col])=>{const G=new THREE.Group();const b=(w,h,d,x,y,z,m)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);G.add(o);};
+b(.15,1.7,.15,0,.85,-1.6,GM);b(.15,1.7,.15,0,.85,1.6,GM);b(.15,.15,3.35,0,1.7,0,new THREE.MeshLambertMaterial({color:col}));b(.02,1.7,3.2,-dir*.9,.85,0,NM);b(.9,.02,3.2,-dir*.45,1.7,0,NM);b(.9,1.7,.02,-dir*.45,.85,-1.6,NM);b(.9,1.7,.02,-dir*.45,.85,1.6,NM);
+G.position.set(gx,1,.5);scene.add(G);});}
+function ballReset(){BALL.m.position.set(-17.5,1.5,.5);BALL.v.set(0,0,0);}ballReset();
+function kickBall(vx,vz,vy){if(NET&&!HOST){netSend({t:'kick',vx,vz,vy});BALL.v.set(vx,vy,vz);}else{BALL.v.x=vx;BALL.v.z=vz;BALL.v.y=Math.max(BALL.v.y,vy);}beep(140,.08,'triangle',.1);}
+function touchKick(pos,hard){const b=BALL.m.position,dx=b.x-pos.x,dz=b.z-pos.z,d=Math.hypot(dx,dz);if(d<.8&&Math.abs(b.y-(pos.y+.4))<1&&BALL.kc<=0){const sp=hard?10:6;BALL.kc=.25;kickBall(dx/d*sp,dz/d*sp,hard?3:1.5);}}
+function scoreMsg(){const e=document.getElementById('score');if(e)e.innerHTML=`<span style="color:#6ab4ff">BLUE ${BALL.sa}</span> ⚽ <span style="color:#ffb347">${BALL.sb} ORANGE</span>`;}
+function tickBall(dt){BALL.kc=(BALL.kc||0)-dt;const b=BALL.m.position,v=BALL.v;
+if(playing&&P.mode=='walk')touchKick(P.pos,sprintOn||keys.ControlLeft);
+if(NET&&!HOST){if(BALL.tp){b.lerp(BALL.tp,.3);}BALL.m.rotation.z-=v.x*dt*2.6;BALL.m.rotation.x+=v.z*dt*2.6;return;}
+if(other)touchKick(other.position,false);
+v.y-=20*dt;const r=.38;
+let nx=b.x+v.x*dt;if(solid(nx+Math.sign(v.x)*r,b.y,b.z)){v.x*=-.6;nx=b.x;}b.x=nx;
+let nz=b.z+v.z*dt;if(solid(b.x,b.y,nz+Math.sign(v.z)*r)){v.z*=-.6;nz=b.z;}b.z=nz;
+let ny=b.y+v.y*dt;if(v.y<0&&solid(b.x,ny-r,b.z)){ny=Math.floor(ny-r)+1+r;v.y=Math.abs(v.y)>2?-v.y*.45:0;const f=Math.max(0,1-1.4*dt);v.x*=f;v.z*=f;}else if(v.y>0&&solid(b.x,ny+r,b.z)){v.y=0;ny=b.y;}b.y=ny;
+BALL.m.rotation.z-=v.x*dt*2.6;BALL.m.rotation.x+=v.z*dt*2.6;
+if(b.y<-8)ballReset();
+if(Math.abs(b.z-.5)<1.6&&b.y<2.7){if(b.x<-23.6){BALL.sb++;goal('ORANGE');}else if(b.x>-11.4&&b.x<-10.4){BALL.sa++;goal('BLUE');}}}
+function goal(t){toast('GOAL! '+t+' SCORES');confetti();[523,659,784,1046,1318].forEach((f,i)=>setTimeout(()=>beep(f,.15,'square',.07),i*90));scoreMsg();ballReset();netSend({t:'goal',w:t,sa:BALL.sa,sb:BALL.sb});}
 let last=performance.now(),introT=0,nightWas=false,spawnT=0,skyAcc=9,duskSaid=false;
 const DAY=600,NIGHT=300,CYC=DAY+NIGHT;const SKYD=['#2a1e5a','#c0507a','#ff9a4a','#ffd08a'],SKYN=['#05061a','#141a40','#2a2350','#3a3060'];
 function lerpHex(a,b,f){const A=parseInt(a.slice(1),16),B=parseInt(b.slice(1),16);const c=[16,8,0].map(sh=>Math.round(((A>>sh)&255)*(1-f)+((B>>sh)&255)*f));return '#'+c.map(v=>v.toString(16).padStart(2,'0')).join('');}
@@ -290,7 +313,7 @@ if(night&&(!NET||HOST)){spawnT-=dt;if(spawnT<=0&&husks.length<5){spawnT=8;const 
 nightWas=night;return {night,into:night?c-DAY:0,left:night?CYC-c:DAY-c};}
 function hurt(n){if(n<100&&(performance.now()-t0)<90000)return;P.hp=Math.max(0,P.hp-n);hurtT=.25;}
 function step(){requestAnimationFrame(step);const now=performance.now(),dt=Math.min(.05,(now-last)/1000);last=now;const T=now/1000;
-tickParts(dt);pollPad(dt);tickBreak(dt);tickPretty(dt,T);if(!BUILD)tickObj();if(playing)chests.forEach(c=>{if(!c.userData.open&&c.position.distanceTo(P.pos)<1.6)openChest(c);if(!c.userData.open)c.rotation.y=Math.sin(T*2)*.15;});crystalObjs.forEach(c=>{c.children[0].rotation.y=T*2;c.children[0].position.y=Math.sin(T*3)*.12;});
+tickParts(dt);pollPad(dt);tickBall(dt);tickBreak(dt);tickPretty(dt,T);if(!BUILD)tickObj();if(playing)chests.forEach(c=>{if(!c.userData.open&&c.position.distanceTo(P.pos)<1.6)openChest(c);if(!c.userData.open)c.rotation.y=Math.sin(T*2)*.15;});crystalObjs.forEach(c=>{c.children[0].rotation.y=T*2;c.children[0].position.y=Math.sin(T*3)*.12;});
 if(playing&&!paused){
 const fwd=new THREE.Vector3(-Math.sin(P.yaw),0,-Math.cos(P.yaw)),right=new THREE.Vector3(-fwd.z,0,fwd.x),mv=new THREE.Vector3();
 if(Math.abs(joyV.y)>.15||Math.abs(joyV.x)>.15){mv.addScaledVector(fwd,-joyV.y).addScaledVector(right,joyV.x);}if(keys.KeyW)mv.add(fwd);if(keys.KeyS)mv.sub(fwd);if(keys.KeyD)mv.add(right);if(keys.KeyA)mv.sub(right);
@@ -374,13 +397,16 @@ if(m.t=='s')applyRemote(()=>setB(m.x,m.y,m.z,m.b));
 if(m.t=='d')applyRemote(()=>{const t=world.get(key(m.x,m.y,m.z));if(t){const ty=t.userData.t;delB(m.x,m.y,m.z);burst(m.x,m.y,m.z,ty);}});
 if(m.t=='c'){const c=crystalObjs.find(o=>o.userData.id==m.id);if(c){c.children[0].visible=false;c.children[1].intensity=0;crystalObjs.splice(crystalObjs.indexOf(c),1);collected++;msg('PARTNER FOUND A CRYSTAL '+collected+'/5');beep(784,.12,'triangle');if(collected>=5)finish(true);}}
 if(m.t=='win'&&playing)finish(true);
+if(m.t=='kick'&&HOST){BALL.v.set(m.vx,Math.max(BALL.v.y,m.vy),m.vz);}
+if(m.t=='ball'&&!HOST){BALL.tp=new THREE.Vector3(m.x,m.y,m.z);BALL.v.set(m.vx,0,m.vz);if(BALL.sa!=m.sa||BALL.sb!=m.sb){BALL.sa=m.sa;BALL.sb=m.sb;scoreMsg();}}
+if(m.t=='goal'&&!HOST){BALL.sa=m.sa;BALL.sb=m.sb;toast('GOAL! '+m.w+' SCORES');confetti();scoreMsg();}
 if(m.t=='obj'){if(m.i>objI){objI=m.i;}}
 if(m.t=='chest'){const c=chests.find(o=>o.userData.id==m.id);if(c)openChest(c,true);}
 if(m.t=='hit'&&HOST){const h=husks.find(o=>o.userData.id==m.id);if(h){swordHit(h,m.fx,m.fz);if(h.userData.hp<=0)huskPoof(h);}}
 if(m.t=='hk'&&!HOST){t0=performance.now()-m.el*1000;const ids=new Set(m.h.map(a=>a[0]));m.h.forEach(a=>{if(!husks.find(o=>o.userData.id==a[0])){const n=makeHusk(a[1],a[3]);n.userData.id=a[0];husks.push(n);}});for(const h of [...husks])if(!ids.has(h.userData.id)){scene.remove(h);husks.splice(husks.indexOf(h),1);}
 m.h.forEach(a=>{const h=husks.find(o=>o.userData.id==a[0]);if(h){h.userData.tp=new THREE.Vector3(a[1],a[2],a[3]);h.userData.dir=a[4];}});}}
 function netTick(dt,T){if(!NET)return;sendAcc+=dt;if(sendAcc>=1/16){sendAcc=0;netSend({t:'p',ch:myChar,x:P.pos.x,y:P.pos.y,z:P.pos.z,yaw:P.yaw,sw:swing,mv:keys.KeyW||keys.KeyS||keys.KeyA||keys.KeyD||Math.abs(joyV.x)+Math.abs(joyV.y)>.2?1:0});
-if(HOST)netSend({t:'hk',el:(performance.now()-t0)/1000,h:husks.map(h=>[h.userData.id,+h.position.x.toFixed(2),+h.position.y.toFixed(2),+h.position.z.toFixed(2),+h.userData.dir.toFixed(2)])});}
+if(HOST){const b=BALL.m.position;netSend({t:'ball',x:+b.x.toFixed(2),y:+b.y.toFixed(2),z:+b.z.toFixed(2),vx:+BALL.v.x.toFixed(2),vz:+BALL.v.z.toFixed(2),sa:BALL.sa,sb:BALL.sb});}if(HOST)netSend({t:'hk',el:(performance.now()-t0)/1000,h:husks.map(h=>[h.userData.id,+h.position.x.toFixed(2),+h.position.y.toFixed(2),+h.position.z.toFixed(2),+h.userData.dir.toFixed(2)])});}
 if(other&&otherT){const o=other,m=otherT;o.position.lerp(new THREE.Vector3(m.x,m.y,m.z),Math.min(1,dt*12));o.rotation.y=m.yaw+Math.PI;const u=o.userData;u.wk=(u.wk||0)+(m.mv?dt*10:0);const sw=m.mv?Math.sin(u.wk)*.7:0;u.la.rotation.x=sw;u.ll.rotation.x=-sw;u.rl.rotation.x=sw;u.ra.rotation.x=m.sw>0?-2.2*Math.sin(m.sw*Math.PI):-sw;}
 if(lastRx&&performance.now()-lastRx>6000)partnerLeft();}
 // ---------- GAMEPAD ----------

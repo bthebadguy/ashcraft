@@ -220,7 +220,7 @@ u.la.rotation.x=sw;u.ll.rotation.x=-sw;u.rl.rotation.x=sw;u.ra.rotation.x=swing>
 // camera
 const cd=(camFar?9:5)+Math.max(0,introT)*12;introT-=dt;cam.position.set(P.pos.x+Math.sin(P.yaw)*Math.cos(P.pitch)*cd,P.pos.y+1.6-Math.sin(P.pitch)*cd,P.pos.z+Math.cos(P.yaw)*Math.cos(P.pitch)*cd);if(window.__dbgFace){cam.position.set(P.pos.x-Math.sin(P.yaw)*3.2,P.pos.y+2,P.pos.z-Math.cos(P.yaw)*3.2);}cam.lookAt(P.pos.x,P.pos.y+1.3,P.pos.z);
 // crystals
-for(const c of [...crystalObjs])if(c.position.distanceTo(P.pos.clone().add(new THREE.Vector3(0,.9,0)))<1.3){scene.remove(c);crystalObjs.splice(crystalObjs.indexOf(c),1);collected++;netSend({t:'c',id:c.userData.id});msg(`ASH CRYSTAL ${collected}/5`);[523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,.12,'triangle',.1),i*80));if(collected>=5)finish(true);}
+for(const c of [...crystalObjs])if(c.position.distanceTo(P.pos.clone().add(new THREE.Vector3(0,.9,0)))<1.3){c.children[0].visible=false;c.children[1].intensity=0;crystalObjs.splice(crystalObjs.indexOf(c),1);collected++;netSend({t:'c',id:c.userData.id});msg(`ASH CRYSTAL ${collected}/5`);[523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,.12,'triangle',.1),i*80));if(collected>=5)finish(true);}
 // husks
 husks.forEach(h=>{let d=P.pos.clone().sub(h.position);d.y=0;let dist=d.length();h.userData.t-=dt;
 if(NET&&!HOST){if(h.userData.tp)h.position.lerp(h.userData.tp,.25);h.rotation.y=h.userData.dir;h.userData.cool-=dt;if(dist<1.1&&Math.abs(P.pos.y-h.position.y)<1.5&&h.userData.cool<=0){hurt(4);h.userData.cool=1.6;beep(90,.2,'sawtooth');}return;}
@@ -276,7 +276,7 @@ if(m.t=='start'){start();netSend({t:'p',ch:myChar,x:P.pos.x,y:P.pos.y,z:P.pos.z,
 if(m.t=='p'){if(!other||other.userData.ch!=m.ch){if(other)scene.remove(other);other=makeBradley(CH[m.ch]);other.userData.ch=m.ch;other.position.set(m.x,m.y,m.z);scene.add(other);msg(CH[m.ch].name+' JOINED!');}otherT=m;}
 if(m.t=='s')applyRemote(()=>setB(m.x,m.y,m.z,m.b));
 if(m.t=='d')applyRemote(()=>{const t=world.get(key(m.x,m.y,m.z));if(t){const ty=t.userData.t;delB(m.x,m.y,m.z);burst(m.x,m.y,m.z,ty);}});
-if(m.t=='c'){const c=crystalObjs.find(o=>o.userData.id==m.id);if(c){scene.remove(c);crystalObjs.splice(crystalObjs.indexOf(c),1);collected++;msg('PARTNER FOUND A CRYSTAL '+collected+'/5');beep(784,.12,'triangle');if(collected>=5)finish(true);}}
+if(m.t=='c'){const c=crystalObjs.find(o=>o.userData.id==m.id);if(c){c.children[0].visible=false;c.children[1].intensity=0;crystalObjs.splice(crystalObjs.indexOf(c),1);collected++;msg('PARTNER FOUND A CRYSTAL '+collected+'/5');beep(784,.12,'triangle');if(collected>=5)finish(true);}}
 if(m.t=='win'&&playing)finish(true);
 if(m.t=='hit'&&HOST){const h=husks.find(o=>o.userData.id==m.id);if(h){h.userData.hp--;h.position.x+=m.fx*1.2;h.position.z+=m.fz*1.2;beep(180,.12,'sawtooth');if(h.userData.hp<=0){scene.remove(h);husks.splice(husks.indexOf(h),1);}}}
 if(m.t=='hk'&&!HOST){t0=performance.now()-m.el*1000;const ids=new Set(m.h.map(a=>a[0]));for(const h of [...husks])if(!ids.has(h.userData.id)){scene.remove(h);husks.splice(husks.indexOf(h),1);}

@@ -140,7 +140,7 @@ let rnd=1;const rand=()=>(rnd=(rnd*16807)%2147483647)/2147483647;
 const embG=new THREE.BufferGeometry(),embN=260,embP=new Float32Array(embN*3);for(let i=0;i<embN;i++){embP[i*3]=(Math.random()-.5)*50;embP[i*3+1]=Math.random()*20;embP[i*3+2]=(Math.random()-.5)*50;}embG.setAttribute('position',new THREE.BufferAttribute(embP,3));
 const embers=new THREE.Points(embG,new THREE.PointsMaterial({color:0xffa040,size:.18,transparent:true,opacity:.85,depthWrite:false}));scene.add(embers);
 function tickPretty(dt,T){const a=embG.attributes.position.array;for(let i=0;i<embN;i++){a[i*3+1]+=dt*(.6+(i%5)*.15);a[i*3]+=Math.sin(T+i)*dt*.3;if(a[i*3+1]>20)a[i*3+1]=0;}embG.attributes.position.needsUpdate=true;water.material.opacity=.8+Math.sin(T*1.5)*.06;water.material.color.setHSL(.55+Math.sin(T*.5)*.02,.5,.32+Math.sin(T*2)*.02);}
-function buildIsland(){rnd=7;const RAD=17;
+function buildIsland(){rnd=7;const RAD=32;
 for(let x=-RAD;x<=RAD;x++)for(let z=-RAD;z<=RAD;z++){const d=Math.hypot(x,z);if(d>RAD+rand()*1.5)continue;
 const h=d>RAD-2?0:Math.max(0,Math.round(1.6*Math.sin(x*.3)*Math.cos(z*.25)+(d<8?.6:0)));
 for(let y=-1;y<=h;y++)setB(x,y,z,y==h?(d>RAD-2?'sand':(rand()<.06?'ash':'grass')):'dirt');}
